@@ -23,13 +23,28 @@ class Player:
 
 
 class AIPlayer(Player):
-    """Joueur IA : redefinit askMove pour generer un coup aleatoire (cours 03a)."""
+    """Joueur IA : redefinit askMove pour generer un coup valide aleatoire (cours 03a)."""
 
     def askMove(self):
+        from position import Position
+        board = self._board
         cols = "abcdefgh"
-        depart = random.choice(cols) + str(random.randint(1, 8))
-        arrivee = random.choice(cols) + str(random.randint(1, 8))
-        lettre = random.choice("KQBNRP")
-        coup = lettre + depart + " " + lettre + arrivee
+        coups_valides = []
+        for pos, piece in list(board.pieces.items()):
+            if piece.color != self._color:
+                continue
+            for c in cols:
+                for r in range(1, 9):
+                    dest = Position(c, r)
+                    cible = board.getPiece(dest)
+                    if cible is not None and cible.color == self._color:
+                        continue
+                    if piece.isValidMove(dest, board):
+                        lettre = str(piece)
+                        coup = f"{lettre}{pos} {lettre}{dest}"
+                        coups_valides.append(coup)
+        if not coups_valides:
+            return "QUIT"
+        coup = random.choice(coups_valides)
         print(f"{self._name} (IA) joue : {coup}")
         return coup
